@@ -1,0 +1,79 @@
+?expression: implication
+?implication: equivalence (IMP equivalence)*                 -> binary
+?equivalence: xor_expression (EQV xor_expression)*           -> binary
+?xor_expression: disjunction (XOR disjunction)*              -> binary
+?disjunction: conjunction (OR conjunction)*                  -> binary
+?conjunction: negation (AND negation)*                       -> binary
+?negation: NOT negation                                      -> unary
+         | comparison
+?comparison: concatenation ((COMPARE|IS) concatenation)*          -> binary
+?concatenation: sum (AMP sum)*                               -> binary
+?sum: modulo (SIGN modulo)*                                 -> binary
+?modulo: integer_division (MOD integer_division)*             -> binary
+?integer_division: product (IDIV product)*                  -> binary
+?product: signed (MUL signed)*                               -> binary
+?signed: SIGN signed                                         -> unary
+       | power
+?power: postfix (POW exponent)*                              -> binary
+?exponent: SIGN exponent                                     -> unary
+         | postfix
+?postfix: atom trailer*                                      -> postfix
+?atom: NAME                                                  -> name
+     | "." NAME                                              -> with_member
+     | "(" expression ")"                                    -> group
+     | NEW qualified_name                                    -> new
+     | TYPEOF postfix IS NAME                                 -> type_of
+     | STRING                                                -> string
+     | DATE                                                  -> date
+     | HEX                                                   -> based
+     | OCT                                                   -> based
+     | NUMBER                                                -> number
+     | TRUE                                                  -> true
+     | FALSE                                                 -> false
+     | NOTHING                                               -> nothing
+     | NULL                                                  -> null
+     | EMPTY                                                 -> empty
+qualified_name: NAME ("." NAME)*
+?trailer: "." NAME                                           -> member
+        | "(" arguments? ")"                                 -> invoke
+arguments: argument ("," [argument])*
+         | missing ("," [argument])+
+missing:
+?argument: NAME ":=" expression                              -> named
+         | "#" expression                                    -> positional
+         | expression                                        -> positional
+expression_list: expression ("," expression)*
+dimensions: dimension ("," dimension)*
+dimension: expression (TO expression)?
+
+IMP.3: /imp\b/i
+EQV.3: /eqv\b/i
+XOR.3: /xor\b/i
+OR.3: /or\b/i
+AND.3: /and\b/i
+NOT.3: /not\b/i
+MOD.3: /mod\b/i
+NEW.3: /new\b/i
+TO.3: /to\b/i
+TRUE.3: /true\b/i
+FALSE.3: /false\b/i
+NOTHING.3: /nothing\b/i
+NULL.3: /null\b/i
+EMPTY.3: /empty\b/i
+TYPEOF.3: /typeof\b/i
+IS.4: /is\b/i
+COMPARE.2: "<=" | ">=" | "<>" | "=" | "<" | ">" | /like\b/i
+AMP: "&"
+SIGN: "+" | "-"
+IDIV: "\\"
+MUL: "*" | "/"
+POW: "^"
+NAME: /(?:[^\W\d]\w*)(?:[%!#$@]|&(?![\w".(])|\^(?![\w".(+-]))?/u
+STRING: /"(?:[^"\r\n]|"")*"/
+DATE: /#[^#\r\n]+#/
+HEX: /&[hH][0-9a-fA-F]+(?:&(?![\w".(])|\^(?![\w".(+-]))?/
+OCT: /&(?:[oO])?[0-7]+(?:&(?![\w".(])|\^(?![\w".(+-]))?/
+NUMBER: /(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[Ee][+-]?[0-9]+)?(?:[%!#@]|&(?![\w".(])|\^(?![\w".(+-]))?/
+
+%import common.WS_INLINE
+%ignore WS_INLINE

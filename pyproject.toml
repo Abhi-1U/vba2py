@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vba2py"
+version = "0.1.0"
+description = "Transpile Excel VBA modules into Python backed by openpyxl"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["Babel>=2.12,<3", "lark>=1.1.9,<2", "openpyxl>=3.1,<4", "oletools>=0.60.2,<1"]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.scripts]
+vba2py = "vba2py.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["vba2py", "vba2py.*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+vba2py = ["grammar/*.lark"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
